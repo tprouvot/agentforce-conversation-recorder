@@ -1,0 +1,13 @@
+{
+  "surface": "messaging",
+  "name": "synthetic-widget",
+  "kind": "synthetic",
+  "release": null,
+  "apiVersion": null,
+  "description": "Hand-written from the markup of the Winter '27 widget: SLDS chat classes, a system event, the input in a shadow root.",
+  "sentTexts": ["Hi"],
+  "expected": {
+    "roles": ["user", "agent"],
+    "resolved": { "root": 0, "agentText": 0, "userText": 0 }
+  }
+}

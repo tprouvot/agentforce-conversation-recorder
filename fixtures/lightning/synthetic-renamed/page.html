@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>A future release that renamed every chat class (hand-written fixture)</title></head>
+<body>
+<!--
+  What a release could ship: the SLDS chat classes gone, new component names, a new class scheme. No candidate of
+  the pack matches the messages; the structural fallback must find them from the text the user just sent.
+-->
+<one-assistant-shell role="dialog" aria-label="Agentforce">
+  <template shadowrootmode="open">
+    <div class="cx-assistant">
+      <ol class="cx-thread">
+        <li class="cx-row">
+          <cx-turn>
+            <template shadowrootmode="open">
+              <div class="cx-msg cx-msg--incoming"><p class="cx-msg__text">Hello! Ask me about your accounts.</p><span class="cx-meta">Agent · now</span></div>
+            </template>
+          </cx-turn>
+        </li>
+        <li class="cx-row">
+          <cx-turn>
+            <template shadowrootmode="open">
+              <div class="cx-msg cx-msg--outgoing"><p class="cx-msg__text">What can you help me with?</p><span class="cx-meta">You · now</span></div>
+            </template>
+          </cx-turn>
+        </li>
+        <li class="cx-row">
+          <cx-turn>
+            <template shadowrootmode="open">
+              <div class="cx-msg cx-msg--incoming"><p class="cx-msg__text">I can summarize accounts and list open cases.</p><span class="cx-meta">Agent · now</span></div>
+            </template>
+          </cx-turn>
+        </li>
+      </ol>
+      <div class="cx-composer"><textarea class="cx-input" aria-label="Chat message input"></textarea><button class="cx-send" aria-label="Send">Send</button></div>
+    </div>
+  </template>
+</one-assistant-shell>
+</body>
+</html>

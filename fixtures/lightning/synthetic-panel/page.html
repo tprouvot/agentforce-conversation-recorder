@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>Lightning Agentforce panel (hand-written fixture)</title></head>
+<body>
+<!-- Mirrors the Winter '27 panel: a dialog hosting shadow roots, SLDS chat markup, one message block per row. -->
+<runtime_thp_learning-side-panel-frame role="dialog" aria-label="Agentforce">
+  <template shadowrootmode="open">
+    <section class="wrapper slds-panel slds-grid slds-grid_vertical">
+      <header class="slds-panel__header">
+        <h2>Agentforce</h2>
+        <button class="slds-button" title="Clear history" aria-label="Clear history">Clear history</button>
+      </header>
+      <div class="einstein-assistant-container">
+        <section class="slds-chat chat-message-panel" aria-label="Chat History">
+          <div class="slds-chat-list chat-history" role="list">
+            <runtime_copilot_base-message-block class="message-block slds-chat-listitem slds-chat-listitem_inbound" role="listitem">
+              <template shadowrootmode="open">
+                <div class="slds-chat-message message-block message-block_inbound">
+                  <span class="slds-avatar slds-chat-avatar"><span role="img" aria-label="Agentforce Avatar"></span></span>
+                  <div class="slds-chat-message__body">
+                    <div class="message-full-width slds-chat-message__text slds-chat-message__text_inbound">Hi, I can look up records and draft emails. What would you like to do?</div>
+                  </div>
+                </div>
+              </template>
+            </runtime_copilot_base-message-block>
+            <runtime_copilot_base-message-block class="message-block slds-chat-listitem slds-chat-listitem_inbound" role="listitem">
+              <template shadowrootmode="open">
+                <div class="slds-chat-message message-block message-block_outbound">
+                  <span class="slds-avatar slds-chat-avatar"><img class="avatar-image" title="My Avatar" alt=""></span>
+                  <div class="slds-chat-message__body">
+                    <div class="message-full-width slds-chat-message__text slds-chat-message__text_outbound">What can you help me with?</div>
+                  </div>
+                </div>
+              </template>
+            </runtime_copilot_base-message-block>
+            <runtime_copilot_base-message-block class="message-block slds-chat-listitem slds-chat-listitem_inbound" role="listitem">
+              <template shadowrootmode="open">
+                <div class="slds-chat-message message-block message-block_inbound">
+                  <span class="slds-avatar slds-chat-avatar"><span role="img" aria-label="Agentforce Avatar"></span></span>
+                  <div class="slds-chat-message__body">
+                    <div class="message-full-width slds-chat-message__text slds-chat-message__text_inbound">I can summarize an account, list open cases, or draft a follow-up email.</div>
+                    <div role="radiogroup" aria-label="Give Feedback...">
+                      <button role="radio" aria-label="Like" title="Like"></button>
+                      <button role="radio" aria-label="Dislike" title="Dislike"></button>
+                    </div>
+                  </div>
+                </div>
+              </template>
+            </runtime_copilot_base-message-block>
+          </div>
+        </section>
+        <div class="slds-form-element">
+          <textarea class="slds-input chat-box" aria-label="Chat message input, describe your task or ask a question" placeholder="Describe your task or ask a question…"></textarea>
+          <button class="slds-button chat-send-button" aria-label="Send">Send</button>
+        </div>
+      </div>
+    </section>
+  </template>
+</runtime_thp_learning-side-panel-frame>
+</body>
+</html>

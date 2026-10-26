@@ -1,0 +1,11 @@
+{
+  "surface": "lightning",
+  "name": "synthetic-renamed",
+  "kind": "synthetic",
+  "release": null,
+  "apiVersion": null,
+  "description": "Every chat class renamed: the pack must miss the messages, and the structural fallback must find them from the sent text.",
+  "sentTexts": ["What can you help me with?"],
+  "heal": { "sentText": "What can you help me with?", "marker": "cx-msg--outgoing" },
+  "expected": { "roles": ["agent", "user", "agent"] }
+}

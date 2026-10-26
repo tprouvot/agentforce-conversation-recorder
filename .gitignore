@@ -1,0 +1,5 @@
+node_modules/
+.DS_Store
+# recordings, local state (healed overrides, doctor snapshots, denylist): they can show org data
+.local/
+.afrec/

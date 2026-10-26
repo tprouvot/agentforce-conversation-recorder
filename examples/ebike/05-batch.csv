@@ -1,0 +1,7 @@
+conversation,surface,org,user,agent,site,message,expect,max seconds
+FleetBatteries,lightning,myAdminAlias,fleet.manager,Fleet Assistant,,Which bikes have a battery below 20 percent?,battery,30
+FleetBatteries,,,,,,Group them by station.,station,
+GuestMembership,messaging,,,,https://example.my.site.com/rides/,Hi,,
+GuestMembership,,,,,,Is there a monthly pass?,pass|month,20
+GuestMembership,,,,,,"Does it include the cargo bikes?
+And helmets?",cargo|helmet,

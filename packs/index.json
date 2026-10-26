@@ -1,0 +1,7 @@
+{
+  "description": "Selector packs that `afrec selectors update` downloads. Packs are JSON data, validated against schema/pack.schema.json, never code.",
+  "packs": [
+    { "file": "lightning.json", "id": "lightning", "version": "2026.10.1" },
+    { "file": "messaging.json", "id": "messaging", "version": "2026.10.1" }
+  ]
+}

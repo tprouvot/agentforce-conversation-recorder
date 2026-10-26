@@ -1,0 +1,118 @@
+{
+  "$schema": "../schema/pack.schema.json",
+  "id": "messaging",
+  "surface": "messaging",
+  "version": "2026.10.1",
+  "minApiVersion": 60,
+  "verified": [
+    { "apiVersion": 68, "release": "Winter '27", "date": "2026-10-26", "by": "afrec doctor (fixtures/*/winter-27)" }
+  ],
+  "elements": {
+    "frame": {
+      "description": "The iframe that holds the Embedded Messaging widget.",
+      "candidates": [
+        { "css": "iframe#embeddedMessagingFrame" },
+        { "css": "iframe[name='embeddedMessagingFrame']" },
+        { "css": "iframe[src*='embeddedservice' i]" }
+      ]
+    },
+    "classicLauncher": {
+      "description": "In the page: the launcher of the classic widget.",
+      "candidates": [
+        { "css": "#embeddedMessagingConversationButton" },
+        { "css": "button.embeddedMessagingConversationButton" }
+      ]
+    },
+    "launcher": {
+      "description": "In the frame: the launcher of the newer widget (often labelled Ask Me Anything, named Start with text).",
+      "candidates": [
+        { "css": "button.chat-fab-container" },
+        { "role": "button", "name": "start with text|ask me anything|chat with|let's chat|^chat$" }
+      ]
+    },
+    "input": {
+      "description": "In the frame: the message box.",
+      "candidates": [
+        { "role": "textbox", "name": "type your message|message" },
+        { "css": "textarea.chat-box" },
+        { "css": "textarea" }
+      ]
+    },
+    "idleInput": {
+      "description": "In the frame: the classic widget's input when no conversation is open.",
+      "candidates": [{ "css": "textarea[placeholder*='start a new' i]" }]
+    },
+    "chat": {
+      "description": "In the frame: the scope of click: steps and expect-button checks.",
+      "candidates": [{ "css": "body" }]
+    },
+    "root": {
+      "description": "In the frame: the element the chat reader walks.",
+      "candidates": [
+        { "class": "einstein-assistant-container" },
+        { "tag": "runtime_copilot_base-assistant-panel" },
+        { "tag": "body" }
+      ]
+    },
+    "agentText": {
+      "description": "In the frame: the text of an agent message (SLDS chat blueprint).",
+      "candidates": [
+        { "class": "slds-chat-message__text_inbound" },
+        { "classPattern": "message__text_inbound" }
+      ]
+    },
+    "userText": {
+      "description": "In the frame: the text of a message the user sent (SLDS chat blueprint).",
+      "candidates": [
+        { "class": "slds-chat-message__text_outbound" },
+        { "classPattern": "message__text_outbound" }
+      ]
+    },
+    "event": {
+      "description": "In the frame: system events (joined, left, ended). A new one with no answer is a hand-off.",
+      "match": "any",
+      "candidates": [
+        { "classPattern": "(^|\\s)slds-chat-(event|listitem_event)(\\s|$)|system-(event|message)" },
+        { "tagPattern": "system-(event|message)|chat-event" }
+      ]
+    },
+    "busy": {
+      "description": "In the frame: anything visible here means the agent is still working.",
+      "match": "any",
+      "candidates": [
+        { "class": "has-progress-indicator" },
+        { "class": "slds-icon-typing" },
+        { "tagPattern": "progress-indicator|typing" },
+        { "role": "status", "name": "loading|thinking|typing" }
+      ]
+    },
+    "row": {
+      "description": "In the frame: a whole chat row, scrolled to the top of the chat for a reply's screenshot.",
+      "match": "any",
+      "candidates": [
+        { "class": "slds-chat-listitem" },
+        { "class": "slds-chat-message" },
+        { "role": "listitem" }
+      ]
+    },
+    "menu": {
+      "description": "In the frame: the chat menu (fresh: true ends a chat left open).",
+      "candidates": [
+        { "role": "button", "name": "chat menu" },
+        { "css": "button.header-menu-button" }
+      ]
+    },
+    "endChat": {
+      "description": "In the frame: the menu item that ends the chat.",
+      "candidates": [{ "role": "menuitem", "name": "end (chat|conversation)" }]
+    },
+    "confirmEnd": {
+      "description": "In the frame: confirms ending the chat.",
+      "candidates": [{ "role": "button", "name": "^(end chat|end conversation|end|confirm|yes)$" }]
+    },
+    "newConversation": {
+      "description": "In the frame: starts a new conversation after ending one.",
+      "candidates": [{ "role": "button", "name": "new conversation|start (a )?new (chat|conversation)" }]
+    }
+  }
+}

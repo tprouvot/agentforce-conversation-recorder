@@ -1,0 +1,53 @@
+{
+  "name": "agentforce-conversation-recorder",
+  "version": "0.1.0",
+  "description": "Plays scripted Agentforce conversations in a real browser and records screenshots, an MP4, a GIF and a transcript. No AI at run time; selector packs, self-healing and a doctor keep it working across Salesforce releases.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "bin": {
+    "afrec": "bin/afrec.js"
+  },
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "bin",
+    "src",
+    "packs",
+    "schema",
+    "examples",
+    "skills",
+    "docs"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "typecheck": "tsc -p tsconfig.json",
+    "check": "npm run typecheck && npm test",
+    "denylist": "node scripts/check-denylist.js",
+    "utam-diff": "node scripts/utam-diff.js"
+  },
+  "keywords": [
+    "salesforce",
+    "agentforce",
+    "playwright",
+    "recording",
+    "demo",
+    "embedded-messaging"
+  ],
+  "dependencies": {
+    "ffmpeg-static": "5.3.0",
+    "playwright": "1.63.0",
+    "yaml": "2.9.1"
+  },
+  "allowScripts": {
+    "ffmpeg-static@5.3.0": true
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2"
+  }
+}

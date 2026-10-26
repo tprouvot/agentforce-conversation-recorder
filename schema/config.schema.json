@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/tprouvot/agentforce-conversation-recorder/schema/config.schema.json",
+  "title": "afrec project configuration (afrec.config.json)",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "scenarios": { "type": "string", "description": "Folder of scenario files (.md, .csv), relative to this file. Default: scenarios" },
+    "recordings": { "type": "string", "description": "Folder that receives one sub-folder per run, relative to this file. Default: .local/recordings" },
+    "defaults": { "type": "object", "description": "Settings for every conversation that leaves them out (same keys as a scenario's front matter)." },
+    "parallel": { "type": "number", "minimum": 1, "maximum": 10, "description": "Conversations recorded at once. Default: 3" },
+    "baseline": { "type": ["string", "null"], "description": "Run folder (relative to recordings) that later runs are compared with." },
+    "checks": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gifMaxBytes": { "type": "number", "minimum": 0, "description": "A GIF above this size is flagged. Default: 15000000" },
+        "videoSlackSeconds": { "type": "number", "minimum": 0, "description": "How much longer than its cut list an MP4 may be before it is flagged. Default: 3" },
+        "minBytesPerMegapixel": { "type": "number", "minimum": 0, "description": "A reply screenshot that compresses below this is flagged as blank. Default: 7000 (a blank Chromium screenshot is about 5600, a sparse chat about 18000)" }
+      }
+    },
+    "doctor": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "canary": { "type": "array", "items": { "type": "string" }, "minItems": 1, "description": "Messages the doctor sends. Default: [\"Hi\", \"What can you help me with?\"]" }
+      }
+    },
+    "packsUrl": { "type": "string", "format": "uri", "description": "Where `afrec selectors update` downloads selector packs (a folder holding index.json)." }
+  }
+}

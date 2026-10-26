@@ -1,0 +1,11 @@
+{
+  "version": "12.0.0",
+  "hash": "08e174ae0a28dd2f",
+  "relied": [
+    "section.agent-item",
+    "p.agent-label",
+    "runtime_copilot_base-base-button.submit-agent",
+    "runtime_copilot_base-base-drop-down"
+  ],
+  "reviewedAt": "2026-10-26"
+}

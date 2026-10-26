@@ -1,0 +1,46 @@
+name: utam-watch
+
+# Early warning: Salesforce updates its UTAM page objects (salesforce-pageobjects) for each release. When the
+# Agentforce panel's page objects change, or drop a selector the Lightning pack relies on, this opens (or updates)
+# an issue: run afrec doctor on a preview sandbox before the release reaches production orgs.
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - id: diff
+        run: |
+          set +e
+          node scripts/utam-diff.js --markdown > utam.md
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          cat utam.md
+      - name: Open or update the issue
+        if: steps.diff.outputs.code == '1'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh label create utam-watch --color FBCA04 --description "UTAM page objects changed" --force
+          existing=$(gh issue list --label utam-watch --state open --json number --jq '.[0].number')
+          if [ -n "$existing" ]; then
+            gh issue comment "$existing" --body-file utam.md
+          else
+            gh issue create --title "UTAM: the Agentforce panel's page objects changed" --label utam-watch --body-file utam.md
+          fi
+      - name: Fail on a script error
+        if: steps.diff.outputs.code == '2'
+        run: exit 1

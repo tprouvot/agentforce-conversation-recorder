@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="afrec-token" content="__AFREC_TOKEN__">
+<title>afrec: Agentforce conversation recorder</title>
+<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap row spread">
+    <div class="row">
+      <strong class="brand">afrec</strong>
+      <nav class="tabs" aria-label="Sections">
+        <a href="#/scenarios" data-route="scenarios">Scenarios</a>
+        <a href="#/run" data-route="run">Run</a>
+        <a href="#/runs" data-route="runs">Recordings</a>
+        <a href="#/doctor" data-route="doctor">Doctor</a>
+      </nav>
+    </div>
+    <div id="status" class="muted" aria-live="polite"></div>
+  </div>
+</header>
+<main class="wrap" id="view"></main>
+<div id="modal"></div>
+<script src="/static/render.js"></script>
+<script src="/static/app.js"></script>
+</body>
+</html>

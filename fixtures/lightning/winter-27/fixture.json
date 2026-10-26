@@ -1,0 +1,34 @@
+{
+  "surface": "lightning",
+  "name": "winter-27",
+  "kind": "doctor",
+  "release": "Winter '27",
+  "apiVersion": 68,
+  "capturedAt": "2026-10-26T09:58:49.719Z",
+  "pack": {
+    "id": "lightning",
+    "version": "2026.10.1",
+    "origin": "bundled",
+    "healed": []
+  },
+  "sentTexts": [
+    "Hi",
+    "What can you help me with?"
+  ],
+  "expected": {
+    "roles": [
+      "agent",
+      "user",
+      "agent",
+      "user",
+      "agent"
+    ],
+    "resolved": {
+      "root": 0,
+      "agentText": 0,
+      "userText": 0,
+      "busy": -1,
+      "event": -1
+    }
+  }
+}

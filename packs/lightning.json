@@ -1,0 +1,142 @@
+{
+  "$schema": "../schema/pack.schema.json",
+  "id": "lightning",
+  "surface": "lightning",
+  "version": "2026.10.1",
+  "minApiVersion": 60,
+  "verified": [
+    { "apiVersion": 68, "release": "Winter '27", "date": "2026-10-26", "by": "afrec doctor (fixtures/*/winter-27)" }
+  ],
+  "elements": {
+    "launcher": {
+      "description": "Header button that opens the Agentforce panel.",
+      "candidates": [
+        { "role": "button", "name": "^Agentforce$" },
+        { "css": "button[title='Agentforce']" },
+        { "role": "button", "name": "^(Agentforce|Einstein|Einstein Copilot|Copilot)\\b", "note": "older and renamed labels" }
+      ]
+    },
+    "firstUse": {
+      "description": "Buttons of the first-use screens, pressed until the chat input shows.",
+      "candidates": [{ "role": "button", "name": "^Got It$" }]
+    },
+    "panel": {
+      "description": "The side panel: the scope of header buttons and the screenshot crop.",
+      "candidates": [
+        { "role": "dialog", "name": "^Agentforce$" },
+        { "css": "runtime_thp_learning-side-panel-frame" }
+      ]
+    },
+    "chat": {
+      "description": "The conversation area: the scope of click: steps and expect-button checks.",
+      "candidates": [
+        { "css": "div.einstein-assistant-container" },
+        { "role": "region", "name": "chat history" }
+      ]
+    },
+    "input": {
+      "description": "The message box.",
+      "candidates": [
+        { "role": "textbox", "name": "chat message input|describe your task|ask a question" },
+        { "css": "textarea.chat-box" },
+        { "css": "div.einstein-assistant-container textarea" }
+      ]
+    },
+    "root": {
+      "description": "In page: the element the chat reader walks (shadow roots included).",
+      "candidates": [
+        { "tag": "runtime_copilot_base-assistant-panel" },
+        { "class": "einstein-assistant-container" },
+        { "tag": "runtime_copilot-assistant-panel-home-view" }
+      ]
+    },
+    "agentText": {
+      "description": "In page: the text of an agent message (SLDS chat blueprint).",
+      "candidates": [
+        { "class": "slds-chat-message__text_inbound" },
+        { "classPattern": "message__text_inbound" }
+      ]
+    },
+    "userText": {
+      "description": "In page: the text of a message the user sent (SLDS chat blueprint).",
+      "candidates": [
+        { "class": "slds-chat-message__text_outbound" },
+        { "classPattern": "message__text_outbound" }
+      ]
+    },
+    "event": {
+      "description": "In page: system events (joined, left, ended). A new one with no answer is a hand-off.",
+      "match": "any",
+      "candidates": [
+        { "classPattern": "(^|\\s)slds-chat-(event|listitem_event)(\\s|$)|system-(event|message)" },
+        { "tagPattern": "system-(event|message)|chat-event" }
+      ]
+    },
+    "busy": {
+      "description": "In page: anything visible here means the agent is still working.",
+      "match": "any",
+      "candidates": [
+        { "class": "has-progress-indicator" },
+        { "class": "slds-icon-typing" },
+        { "tagPattern": "progress-indicator|typing" },
+        { "role": "status", "name": "loading|thinking|typing" }
+      ]
+    },
+    "row": {
+      "description": "In page: a whole chat row (avatar, name), scrolled to the top of the chat for a reply's screenshot.",
+      "match": "any",
+      "candidates": [
+        { "class": "slds-chat-listitem" },
+        { "class": "slds-chat-message" },
+        { "role": "listitem" }
+      ]
+    },
+    "panelBox": {
+      "description": "In page: the box cropped for screenshots and the GIF, searched from the root upward.",
+      "candidates": [
+        { "class": "slds-panel" },
+        { "role": "dialog" }
+      ]
+    },
+    "clearHistory": {
+      "description": "Header button that clears the panel's conversation (fresh: true).",
+      "candidates": [
+        { "role": "button", "name": "^Clear history$" },
+        { "title": "^Clear history$" }
+      ]
+    },
+    "confirm": {
+      "description": "Confirmation button after Clear history.",
+      "candidates": [{ "role": "button", "name": "^(Clear|Clear History|Confirm|Yes|OK|Continue)$" }]
+    },
+    "agentItem": {
+      "description": "One agent in the panel's agent selector (several employee agents).",
+      "candidates": [
+        { "css": "section.agent-item", "source": "utam", "note": "runtime_copilot multiAgentSelector" },
+        { "role": "radio" }
+      ]
+    },
+    "agentItemLabel": {
+      "description": "The label inside an agent item.",
+      "candidates": [{ "css": "p.agent-label", "source": "utam" }]
+    },
+    "agentSubmit": {
+      "description": "Button that confirms the agent picked in the selector.",
+      "candidates": [
+        { "css": "runtime_copilot_base-base-button.submit-agent", "source": "utam" },
+        { "role": "button", "name": "^(Start|Select|Continue|Confirm|Done|Switch)" }
+      ]
+    },
+    "agentSwitcher": {
+      "description": "Header control that reopens the agent selector.",
+      "candidates": [
+        { "css": "runtime_copilot_base-base-drop-down", "source": "utam" },
+        { "role": "button", "name": "(switch|select|change) agent" }
+      ]
+    },
+    "loginAsBanner": {
+      "description": "The 'Logged in as ... Log out' banner hidden by hideLoginAsBanner.",
+      "candidates": [{ "css": "#oneHeader .system-message", "text": "logged in as|log out as" }]
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "surface": "lightning",
+  "name": "synthetic-panel",
+  "kind": "synthetic",
+  "release": null,
+  "apiVersion": null,
+  "description": "Hand-written from the markup of the Winter '27 panel: SLDS chat classes inside nested shadow roots.",
+  "sentTexts": ["What can you help me with?"],
+  "expected": {
+    "roles": ["agent", "user", "agent"],
+    "resolved": { "root": 1, "agentText": 0, "userText": 0 }
+  }
+}

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"></head>
+<body>
+<!-- Mirrors the Winter '27 widget: header, SLDS chat list of message blocks, a system event, the input. -->
+<div class="einstein-assistant-container">
+  <cwcmessaging-cwc-header-block>
+    <template shadowrootmode="open">
+      <header class="header-section slds-card">
+        <h1 class="slds-card__header-title" title="Assistant">Assistant</h1>
+        <button class="header-button header-menu-button slds-button" aria-label="Open the chat menu"></button>
+        <button class="header-button header-minimize-button slds-button" title="Minimize chat window"></button>
+      </header>
+    </template>
+  </cwcmessaging-cwc-header-block>
+  <section class="slds-chat chat-message-panel" aria-label="Chat History">
+    <div class="slds-chat-list chat-history" role="list">
+      <runtime_copilot_block-cwc-message-block class="message-block slds-chat-listitem slds-chat-listitem_inbound" role="listitem">
+        <template shadowrootmode="open">
+          <div class="slds-chat-message message-block message-block_outbound">
+            <div class="slds-chat-message__body">
+              <div class="chat-message-container slds-chat-message__text slds-chat-message__text_outbound message__text_outbound"><span>Hi</span></div>
+            </div>
+          </div>
+        </template>
+      </runtime_copilot_block-cwc-message-block>
+      <runtime_copilot_block-cwc-message-block class="message-block slds-chat-listitem slds-chat-listitem_inbound" role="listitem">
+        <template shadowrootmode="open">
+          <runtime_copilot_block-cwc-message-block-system-message>
+            <template shadowrootmode="open">
+              <div class="cwc-system-message"><div class="cwc-system-message-text cwc-participant-joined">Assistant joined</div></div>
+            </template>
+          </runtime_copilot_block-cwc-message-block-system-message>
+        </template>
+      </runtime_copilot_block-cwc-message-block>
+      <runtime_copilot_block-cwc-message-block class="message-block slds-chat-listitem slds-chat-listitem_inbound" role="listitem">
+        <template shadowrootmode="open">
+          <div class="slds-chat-message message-block message-block_inbound">
+            <div class="slds-chat-message__body">
+              <div class="chat-message-container slds-chat-message__text slds-chat-message__text_inbound message__text_inbound"><span>Hello! How can I help you today?</span></div>
+            </div>
+          </div>
+        </template>
+      </runtime_copilot_block-cwc-message-block>
+    </div>
+  </section>
+  <runtime_copilot_block-cwc-message-input>
+    <template shadowrootmode="open">
+      <div class="slds-form-element chat-container">
+        <textarea class="chat-box chat-box-has-attachment" placeholder="Type your message..." type="text"></textarea>
+      </div>
+    </template>
+  </runtime_copilot_block-cwc-message-input>
+</div>
+</body>
+</html>
