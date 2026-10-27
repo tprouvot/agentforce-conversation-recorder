@@ -1,14 +1,95 @@
 # Agentforce conversation recorder (`afrec`)
 
-Plays scripted Agentforce conversations in a real browser and records them: a screenshot of the chat per answer,
-an MP4 and a GIF with the agent's thinking pauses cut, a transcript, and an HTML report with checks. It covers the
-**Lightning Agentforce panel** and **Embedded Messaging** widgets on Experience Cloud sites (guests or signed-in
-users), runs several conversations in parallel, and works from the **command line** or a **local web UI**.
+Records Agentforce conversations for you. You write the questions in a small text file; `afrec` types them in a
+real browser, waits for each answer, and gives you a screenshot per answer, an MP4, a GIF, a transcript and an
+HTML report. It works on the **Lightning Agentforce panel** and on **Embedded Messaging** chat widgets (as a guest
+or a signed-in user), from the command line or from a local web page.
 
-- **No AI at record time, no tokens.** Everything is deterministic: Playwright, ffmpeg, and selector packs.
-- **Built to survive Salesforce releases.** Locators are versioned data with a self-healing fallback, a doctor
-  checks orgs (and preview sandboxes) ahead of releases, and fixes ship as data. See
-  [docs/RELEASE-PROOF.md](docs/RELEASE-PROOF.md).
+No AI at record time: nothing to configure, no tokens spent, the same script plays the same way every time.
+
+## Install
+
+> **Not on npm yet.** `npm install --global agentforce-conversation-recorder` does not work for now: install it
+> from GitHub as below.
+
+You need [Node.js](https://nodejs.org) 20 or later, git, and the
+[Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) logged in to your org:
+
+```sh
+sf org login web --alias myOrg
+```
+
+Then, once:
+
+```sh
+git clone https://github.com/tprouvot/agentforce-conversation-recorder.git
+cd agentforce-conversation-recorder
+npm install
+npm link             # makes the afrec command available in every folder
+afrec setup          # installs the browser afrec drives, checks ffmpeg and the sf CLI
+```
+
+To update later: `git pull && npm install` in that folder. To remove: `npm unlink --global agentforce-conversation-recorder`.
+
+## Record your first conversation
+
+**1. Make a project folder**, anywhere outside the clone:
+
+```sh
+mkdir my-demo && cd my-demo
+afrec init --org myOrg --example none    # afrec.config.json (myOrg by default), an empty scenarios/ folder
+```
+
+**2. Start a scenario.** `afrec new` finds your agent in the org and writes `scenarios/<agent>.md`, with what the
+agent can do (its topics and actions) in a comment, to give you ideas:
+
+```sh
+afrec new                                  # the Agentforce panel in Lightning, as you
+afrec new --user jordan.lee                # the same, logged in as another user (Login-As)
+afrec new --site https://<your-site>/      # the chat widget on a site, as a guest
+```
+
+Several agents in the org? Add `--agent "<agent name>"`.
+
+**3. Write your questions** at the end of that file: one numbered line per message. Under a message, you can add
+checks on its answer. For example:
+
+```markdown
+1. Hi
+2. Which bikes have a low battery?
+   - expect: battery
+   - expect-not: sorry|went wrong
+3. Group them by station.
+```
+
+**4. Check, then record:**
+
+```sh
+afrec run --dry-run      # who signs in where, what will run; sends nothing
+afrec run                # records every scenario in scenarios/, and prints where the report is
+```
+
+Open the `report.html` it prints. Each message spends agent credits and can run real actions (records created,
+emails sent): don't script what you don't want to happen.
+
+Prefer clicking? `afrec ui` does the same in your browser: write scenarios, run them, watch the progress, browse
+the recordings.
+
+## Let a coding agent write the scenarios
+
+With Claude Code (or another agent that reads skills), add the two skills of this repository. From the clone
+folder:
+
+```sh
+mkdir -p ~/.claude/skills
+ln -s "$PWD/skills/agentforce-scenario-generate" "$PWD/skills/agentforce-conversation-recorder" ~/.claude/skills/
+```
+
+Then ask, for example: *"write a demo scenario for the agent in myOrg, logged in as jordan.lee, and record it"*.
+The agent reads what your agent can do, writes the questions and checks, tries them once, then tightens the
+checks. [agentforce-scenario-generate](skills/agentforce-scenario-generate/SKILL.md) writes the scenarios;
+[agentforce-conversation-recorder](skills/agentforce-conversation-recorder/SKILL.md) runs and reviews the
+recordings, and fixes the tool when a Salesforce release changes the chat.
 
 ## What you get
 
@@ -21,91 +102,46 @@ For each conversation, in `.local/recordings/<date-time>/<conversation>/`:
 
 And for the run: `report.html` (self-contained: share the folder as is), `report.md`, `report.json`.
 
-## Install
-
-Node.js 20 or later, and the [Salesforce CLI](https://developer.salesforce.com/tools/salesforcecli) with your org
-authorized (`sf org login web --alias myOrg`).
-
-```sh
-npm install --global agentforce-conversation-recorder
-afrec setup          # installs Chromium for Playwright, checks ffmpeg and the sf CLI
-```
-
-Or from a clone: `npm install && npm link`.
-
-## Quick start
-
-```sh
-mkdir my-demo && cd my-demo
-afrec init --org myOrg     # afrec.config.json, scenarios/ with the e-bike examples, .gitignore entries
-```
-
-Write a scenario, `scenarios/hello.md`:
-
-```markdown
----
-surface: lightning
-org: myOrg
----
-1. Hi
-2. What can you help me with?
-   - expect: help
-   - max-seconds: 30
-```
-
-Then:
-
-```sh
-afrec run --dry-run        # who signs in where, what runs in parallel; opens nothing
-afrec run                  # records every scenario, 3 at a time
-open .local/recordings/*/report.html
-```
-
-Or do all of it from the browser:
-
-```sh
-afrec ui                   # http://127.0.0.1:4477/?token=... (opens your browser)
-```
-
-The UI has four views: **Scenarios** (a form or Markdown editor, validated as you type), **Run** (dry run, record,
-live progress per conversation, a masked prompt when a step needs a one-time code), **Recordings** (videos,
-screenshots, transcripts, checks, the diff with a baseline run), and **Doctor**.
-
-Every message spends agent credits and can run real actions (records created, emails sent): leave out flows you
-don't want triggered.
-
 ## Scenarios
 
-Markdown for one conversation, CSV for many. Steps are messages, `click:`, `wait:`, `type-from:`, and checks
-(`expect:`, `expect-not:`, `expect-button:`, `max-seconds:`). The full reference is in
-[docs/SCENARIOS.md](docs/SCENARIOS.md), and [examples/ebike/](examples/ebike/) has a complete demo: guests, a
-signed-in rider with a one-time code, a hand-off, a fleet manager in Lightning, and a CSV batch.
+One conversation per Markdown file, or many in a CSV (a spreadsheet export works). Besides messages, a step can
+be `click: <button>`, `wait: <seconds>`, or `type-from: prompt one-time code` (you type the code when asked).
+Checks on an answer: `expect:`, `expect-not:`, `expect-button:`, `max-seconds:`; a failed check flags the
+conversation, the run goes on.
 
-## Who gets signed in
+Everything is in [docs/SCENARIOS.md](docs/SCENARIOS.md). [examples/ebike/](examples/ebike/) is a complete demo:
+guests, a signed-in rider with a one-time code, a hand-off to a person, a fleet manager in Lightning, a CSV batch
+(`afrec init` without `--example none` copies it into `scenarios/`).
 
-Through the sf CLI, never by typing passwords:
+### Who gets signed in
 
-| Settings | Sign-in |
+Always through the sf CLI, never by typing a password:
+
+| In the scenario | Signed in |
 | --- | --- |
-| `org`, no `user` | the alias's own user (single-use frontdoor URL) |
-| `org` + `user` | Login-As by the alias's admin: an internal user in Lightning, or a community user on their site |
-| `site`, no `user` | a guest visitor |
-| `user` + `credentials` | development only: a password login from a local credentials file |
+| `org` only | the user of that sf alias |
+| `org` + `user` | that user, by Login-As from the alias's admin: in Lightning, or on their site |
+| `site` only | nobody: a guest visitor |
+| `user` + `credentials` | development only: a password login from a local file |
+
+Login-As needs "Administrators Can Log in as Any User" (Setup > Login Access Policies).
 
 ## Commands
 
 | Command | What it does |
 | --- | --- |
-| `afrec run [files]` | record (default: the project's `scenarios/`); `--dry-run`, `--parallel`, `--only`, `--headed`, setting flags |
+| `afrec init` | a new project folder: `afrec.config.json`, `scenarios/`, `.gitignore` entries |
+| `afrec new [name]` | a scenario to start from: settings checked in the org, the agent's topics and actions listed in it; `--json` prints them |
+| `afrec run [files]` | record (default: every scenario in `scenarios/`); `--dry-run`, `--only <name>`, `--headed` to watch |
 | `afrec ui` | the local web UI |
-| `afrec doctor` | prerequisites, a canary conversation, and the state of every locator, for an org or a site |
-| `afrec heal` | a repair bundle for a coding agent, from the last broken doctor check |
-| `afrec selectors list \| update \| promote \| check` | the selector packs: see them, download fixes, promote healed locators, validate a pack |
-| `afrec fixtures test \| add` | replay the offline fixtures; turn a doctor snapshot into one |
-| `afrec baseline set <run>`, `afrec compare <run>` | compare runs: what changed in each answer, timing, flags |
-| `afrec setup`, `afrec init`, `afrec orgs` | installation, a new project, the sf CLI's orgs |
+| `afrec doctor` | is everything in place? prerequisites, a test conversation, and every element of the chat |
+| `afrec heal` | after a broken doctor check: a repair bundle for a coding agent |
+| `afrec selectors list \| update \| promote \| check` | the chat locators: see them, download fixes, keep healed ones, validate a pack |
+| `afrec fixtures test \| add` | replay the offline test pages; turn a doctor snapshot into one |
+| `afrec baseline set <run>`, `afrec compare <run>` | compare two runs: what changed in each answer, timing, flags |
+| `afrec setup`, `afrec orgs` | install and check the prerequisites; list the sf CLI's orgs |
 
-`afrec --help` (or `afrec <command> --help`) lists every option.
+`afrec --help` lists every option.
 
 ## Configuration
 
@@ -123,7 +159,12 @@ Through the sf CLI, never by typing passwords:
 }
 ```
 
+`defaults` apply to every scenario that leaves them out; a command-line flag (`--org`, `--user`, ...) does the same.
+
 ## Staying ahead of Salesforce releases
+
+Salesforce changes the chat's markup with its releases. `afrec` keeps its locators as versioned data with a
+self-healing fallback, and its doctor checks an org (a preview sandbox before a release, for example):
 
 ```sh
 afrec doctor --org myPreviewSandbox           # the Lightning panel
@@ -133,12 +174,6 @@ afrec doctor --site https://.../rides/        # a widget (add --org for its rele
 Healthy: keep the snapshot as a regression fixture (`afrec fixtures add`). Degraded or broken: `afrec heal` writes
 a bundle a coding agent can fix offline; a merged fix reaches everyone with `afrec selectors update`. Why and how:
 [docs/RELEASE-PROOF.md](docs/RELEASE-PROOF.md).
-
-## For coding agents
-
-[skills/agentforce-conversation-recorder/SKILL.md](skills/agentforce-conversation-recorder/SKILL.md) teaches an
-agent (Claude Code and other skill-aware agents) to write scenarios, run and review recordings, and apply a repair
-bundle. The tool itself never calls an AI.
 
 ## As a library
 
