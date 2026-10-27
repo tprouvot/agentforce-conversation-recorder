@@ -15,7 +15,7 @@ const VIEWPORTS = {
   mobile: { width: 390, height: 844, scale: 3, mobile: true },
 };
 const RECORD_KINDS = ['screenshots', 'video', 'gif'];
-const SURFACE_ALIASES = {
+export const SURFACE_ALIASES = {
   lightning: 'lightning', panel: 'lightning', agentforce: 'lightning',
   messaging: 'messaging', widget: 'messaging', miaw: 'messaging', site: 'messaging', embedded: 'messaging', experience: 'messaging',
 };

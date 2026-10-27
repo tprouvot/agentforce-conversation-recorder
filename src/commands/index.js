@@ -10,6 +10,7 @@ import { loadProject, saveConfig, PACKAGE_ROOT, CONFIG_FILE, homeDir } from '../
 import { planRun, describePlan, executeRun } from '../engine/run.js';
 import { InputBroker, promptOnTerminal } from '../engine/input.js';
 import { readScenarioFiles } from '../scenario/parse.js';
+import { draftFacts, draftSettings, draftFile, draftSurface, writeDraft, shownPath } from '../scenario/draft.js';
 import { doctorCheck, describeDoctor } from '../doctor/doctor.js';
 import { writeHealBundle, latestDoctorDir } from '../doctor/bundle.js';
 import { listFixtures, testFixture, fixtureFromDoctor } from '../doctor/fixtures.js';
@@ -33,6 +34,10 @@ Usage: afrec <command> [options]
         settings for conversations that leave them out: --org --user --site --app --path --agent --surface
         --viewport --record --reply-timeout --settle --type-delay --warmup --input-timeout --network
         --hide-login-as-banner --no-fresh; development only: --credentials --login-url --auth-url
+  new [name|file.md]      start a scenario: its settings checked in the org, and what the agent can do (its topics
+                          and actions) listed in it; you write the messages (default: scenarios/<agent>.md)
+        --org --agent --user --site --surface (any setting flag)  --json (print what the org says, write nothing)
+        --force
   ui                      the local web UI: edit scenarios, run them, watch progress, browse recordings
         --port <n> (4477)  --host <h> (127.0.0.1)  --no-open
   doctor [scenario]       check the chat against an org: prerequisites, a canary conversation, every locator
@@ -102,6 +107,28 @@ async function run(argv) {
   } finally {
     stopPrompt();
   }
+}
+
+async function newScenario(argv) {
+  const args = parseArgs(argv, { ...settingSpec(), json: 'boolean', force: 'boolean', config: 'string' });
+  const project = loadProject({ file: args.config });
+  const flags = settingsFromFlags(args);
+  const defaults = project.config.defaults;
+  if (!defaults.org && !flags.org && !flags.site && !flags.surface) throw new Error('give --org <alias> (the org of the agent), or --site <url> for a guest on a website');
+  const facts = await draftFacts({ ...defaults, ...flags });
+  const settings = draftSettings(flags, facts, defaults);
+  const file = draftFile(project, args._[0], facts.agent);
+  if (args.json) { out(JSON.stringify({ file, settings, ...facts }, null, 1)); return 0; }
+  facts.warnings.forEach(w => err(`warning: ${w}`));
+  const surface = draftSurface({ ...defaults, ...settings });
+  if (!surface) throw new Error('give --surface lightning or --surface messaging (no agent found to tell)');
+  if (surface === 'messaging' && !defaults.site && !settings.site) throw new Error(`a Messaging scenario needs --site <url>: the page where the chat widget loads${facts.agent ? ` (${facts.agent.label} is ${facts.agent.type === 'InternalCopilot' ? 'an employee agent: --surface lightning?' : 'a service agent'})` : ''}`);
+  writeDraft({ file, settings, facts, defaults }, { force: args.force });
+  const rel = shownPath(file);
+  const t = facts.topics;
+  out(`wrote ${rel}${t ? `, with what ${facts.agent.label} can do: ${t.topics.length} topic(s), ${t.topics.reduce((n, x) => n + x.actions.length, t.actions.length)} action(s)` : ''}`);
+  out(`next: write the messages in it, then afrec run --dry-run ${rel}`);
+  return 0;
 }
 
 async function ui(argv) {
@@ -332,7 +359,7 @@ async function orgs() {
   return 0;
 }
 
-const COMMANDS = { run, ui, doctor, heal, selectors, fixtures, baseline, compare, setup, init, orgs };
+const COMMANDS = { run, new: newScenario, ui, doctor, heal, selectors, fixtures, baseline, compare, setup, init, orgs };
 
 export async function main(argv) {
   const [command, ...rest] = argv;

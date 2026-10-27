@@ -4,6 +4,21 @@ A scenario is a conversation to replay: where it runs, who is signed in, and the
 conversation per file) or CSV (several per sheet), by hand or with the form editor of `afrec ui`. Both formats are
 validated by `schema/scenario.schema.json`.
 
+## Start from your agent
+
+```sh
+afrec new --org myAdminAlias --user fleet.manager            # Lightning, the org's employee agent
+afrec new rider-extends --org myAdminAlias --user rider.demo --site https://example.my.site.com/rides/
+```
+
+`afrec new` checks the settings in the org (the agent, the user, the site of a community user) and writes
+`scenarios/<name>.md` (by default the agent's name) with them, who signs in, and in a comment what the agent can
+do: the topics of its active version, their scope and actions, and which actions ask for a confirmation. You write
+the messages; until there is one, a run stops with "has no message to send".
+
+With several active agents, pick one with `--agent`. On Messaging, give `--site`: the org cannot tell which page
+carries the widget. `--json` prints what the org says, topic instructions included, and writes nothing.
+
 ## Markdown (.md)
 
 ```markdown

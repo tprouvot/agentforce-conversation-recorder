@@ -8,6 +8,8 @@
 export { loadProject, saveConfig, findProjectDir } from './config.js';
 export { readScenarioFiles, parseScenarioText, parseMarkdown, parseCsv, toMarkdown } from './scenario/parse.js';
 export { resolveConversation, resolveAll, assignFolders } from './scenario/resolve.js';
+export { draftFacts, draftSettings, draftFile, draftScenario, writeDraft } from './scenario/draft.js';
+export { agentTopics } from './engine/salesforce.js';
 export { planRun, describePlan, executeRun } from './engine/run.js';
 export { InputBroker, promptOnTerminal } from './engine/input.js';
 export { compareRuns, readRun, wordDiff } from './engine/baseline.js';

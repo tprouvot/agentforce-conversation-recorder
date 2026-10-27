@@ -116,3 +116,70 @@ export async function findAgent(alias, name) {
   if (!hit) throw new Error(`no active agent "${name}" in ${alias} (active: ${agents.map(a => a.label).join(', ') || 'none'})`);
   return hit;
 }
+
+const RECORD_ID = /^[a-zA-Z0-9]{15}(?:[a-zA-Z0-9]{3})?$/;
+const LOCAL_SUFFIX = /_(?:16j|179)[a-zA-Z0-9]{12}$/; // a topic or action local to one planner ends with its parent's Id
+const oneLine = text => (text ? String(text).replace(/\s+/g, ' ').trim() : null);
+
+/**
+ * GenAiPlannerFunctionDef.Plugin and GenAiPluginFunctionDef.Function hold a record Id (a topic or action of this
+ * agent) or a developer name (a standard one, `ns__Name` when namespaced). Returns the records found, by value.
+ */
+async function definitions(alias, object, fields, values, prefix) {
+  const ids = [...new Set(values.filter(v => RECORD_ID.test(v) && v.startsWith(prefix)))];
+  const names = [...new Set(values.filter(v => !RECORD_ID.test(v)))];
+  const where = [];
+  if (ids.length) where.push(`Id IN (${ids.map(soqlString).join(', ')})`);
+  if (names.length) where.push(`DeveloperName IN (${names.map(n => soqlString(n.split('__').pop())).join(', ')})`);
+  const found = new Map();
+  if (!where.length) return found;
+  const rows = await query(alias, `SELECT Id, DeveloperName, NamespacePrefix, MasterLabel, Description, ${fields} FROM ${object} WHERE ${where.join(' OR ')}`);
+  for (const v of values) {
+    const hit = RECORD_ID.test(v) ? rows.find(r => r.Id.slice(0, 15) === v.slice(0, 15))
+      : rows.find(r => (r.NamespacePrefix ? `${r.NamespacePrefix}__${r.DeveloperName}` : r.DeveloperName) === v);
+    if (hit) found.set(v, hit);
+  }
+  return found;
+}
+
+const label = (value, row) => (row ? row.MasterLabel : value.split('__').pop().replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2'));
+const action = (value, row) => ({ name: row ? row.DeveloperName.replace(LOCAL_SUFFIX, '') : value, label: label(value, row), description: oneLine(row && row.Description), confirm: !!(row && row.IsConfirmationRequired) });
+
+/**
+ * What an active agent can do, from its active version's planner: { version, planner, topics, actions }, each topic
+ * { name, label, description, scope, instructions, actions }, each action { name, label, description, confirm }.
+ * `actions` are the ones outside any topic. A standard topic or action the org does not describe keeps its name.
+ */
+export async function agentTopics(alias, developerName) {
+  const [version] = await query(alias, `SELECT Id, VersionNumber FROM BotVersion WHERE Status = 'Active' AND BotDefinition.DeveloperName = ${soqlString(developerName)} ORDER BY VersionNumber DESC LIMIT 1`);
+  if (!version) throw new Error(`${developerName} has no active version in ${alias}`);
+  const planners = await query(alias, 'SELECT Id, DeveloperName, LinkedBotVersionId FROM GenAiPlannerDefinition'); // LinkedBotVersionId cannot be filtered on
+  const planner = planners.find(p => p.LinkedBotVersionId && p.LinkedBotVersionId.slice(0, 15) === version.Id.slice(0, 15))
+    || planners.find(p => p.DeveloperName === `${developerName}_v${version.VersionNumber}`) || planners.find(p => p.DeveloperName === developerName);
+  if (!planner) throw new Error(`no planner for version ${version.VersionNumber} of ${developerName} in ${alias}`);
+  const attached = (await query(alias, `SELECT Plugin FROM GenAiPlannerFunctionDef WHERE PlannerId = ${soqlString(planner.Id)}`)).map(r => r.Plugin).filter(Boolean);
+  const [plugins, loose] = await Promise.all([
+    definitions(alias, 'GenAiPluginDefinition', 'Scope', attached, '179'),
+    definitions(alias, 'GenAiFunctionDefinition', 'IsConfirmationRequired', attached.filter(v => !(RECORD_ID.test(v) && v.startsWith('179'))), '172'),
+  ]);
+  const topicIds = [...plugins.values()].map(r => r.Id);
+  const [links, instructions] = topicIds.length ? await Promise.all([
+    query(alias, `SELECT PluginId, Function FROM GenAiPluginFunctionDef WHERE PluginId IN (${topicIds.map(soqlString).join(', ')})`),
+    query(alias, `SELECT GenAiPluginDefinitionId, Description FROM GenAiPluginInstructionDef WHERE GenAiPluginDefinitionId IN (${topicIds.map(soqlString).join(', ')}) ORDER BY SortOrder`),
+  ]) : [[], []];
+  const functions = await definitions(alias, 'GenAiFunctionDefinition', 'IsConfirmationRequired', links.map(l => l.Function).filter(Boolean), '172');
+  const topics = attached.filter(v => plugins.has(v) || !loose.has(v)).map(v => {
+    const row = plugins.get(v);
+    return {
+      name: row ? row.DeveloperName.replace(LOCAL_SUFFIX, '') : v,
+      label: label(v, row),
+      description: oneLine(row && row.Description),
+      scope: oneLine(row && row.Scope),
+      instructions: row ? instructions.filter(i => i.GenAiPluginDefinitionId === row.Id).map(i => String(i.Description || '').trim()).filter(Boolean) : [],
+      actions: row ? links.filter(l => l.PluginId === row.Id && l.Function).map(l => action(l.Function, functions.get(l.Function))) : [],
+    };
+  });
+  topics.sort((a, b) => a.label.localeCompare(b.label));
+  const actions = attached.filter(v => loose.has(v)).map(v => action(v, loose.get(v)));
+  return { version: version.VersionNumber, planner: planner.DeveloperName, topics, actions };
+}
