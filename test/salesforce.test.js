@@ -21,12 +21,14 @@ test('sf: the result on success; on failure the CLI\'s message, or why it did no
     { match: '^org display --target-org broken', error: 'No authorization information found for broken.\nRun sf org login web' },
     { match: '^org display --target-org noisy', raw: 'Warning: a new version of sf is available\n{"status":0,"result":{"fine":true}}' },
     { match: '^org display --target-org garbage', raw: 'not json at all', exit: 1 },
+    { match: '^data query', error: "\nSELECT Id FROM Nothing\n               ^\nERROR at Row:1:Column:16\nsObject type 'Nothing' is not supported." },
   ]);
   assert.deepEqual(await sf(['org', 'list']), { ok: 1 });
   assert.deepEqual(fake.calls().at(-1), ['org', 'list', '--json']);
   await assert.rejects(sf(['org', 'display', '--target-org', 'broken']), /^Error: sf org display failed: No authorization information found for broken\.$/);
   assert.deepEqual(await sf(['org', 'display', '--target-org', 'noisy']), { fine: true }, 'text before the JSON is skipped');
   await assert.rejects(sf(['org', 'display', '--target-org', 'garbage']), /sf org display failed: Command failed/);
+  await assert.rejects(sf(['data', 'query', '--query', 'SELECT Id FROM Nothing']), /^Error: sf data query failed: sObject type 'Nothing' is not supported\.$/, 'a SOQL error ends with its reason');
   const path = process.env.PATH;
   process.env.PATH = '/nonexistent';
   try {

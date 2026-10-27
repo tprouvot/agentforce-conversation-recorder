@@ -20,7 +20,8 @@ export function sf(args, { timeout = 180000 } = {}) {
       }
       if (json && json.status === 0) return resolve(json.result);
       const reason = (json && (json.message || json.name)) || (err && /** @type {any} */ (err).code === 'ENOENT' ? 'the sf CLI is not installed (npm install --global @salesforce/cli)' : err && err.message) || 'failed';
-      reject(new Error(`sf ${args.slice(0, 2).join(' ')} failed: ${String(reason).split('\n')[0]}`));
+      const lines = String(reason).trim().split('\n');
+      reject(new Error(`sf ${args.slice(0, 2).join(' ')} failed: ${/ERROR at Row/.test(reason) ? lines[lines.length - 1] : lines[0]}`)); // a SOQL error ends with its reason
     });
   });
 }
