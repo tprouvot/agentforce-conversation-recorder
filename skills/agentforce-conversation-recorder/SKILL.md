@@ -22,11 +22,13 @@ package name.
 
 ## Recording
 
-1. **Gather** the surface (Lightning panel, or the URL of the page carrying the widget), who is signed in (the sf
-   alias's user, Login-As of a user, a guest), and the messages. Write `scenarios/*.md` (one conversation) or a
-   `.csv` (several). Add checks instead of planning to read every answer: `expect:`, `expect-not:`,
-   `expect-button:`, `max-seconds:`. For one-time codes use `type-from: prompt one-time code`: the user types it in
-   `afrec ui` or the terminal when asked.
+1. **Scenarios**: when the user has none, or only an idea of the conversation, write them with the
+   [agentforce-scenario-generate](../agentforce-scenario-generate/SKILL.md) skill: it starts from what the agent
+   can do (`afrec new --org <alias> --json`) and calibrates the checks. Given a script, put it in `scenarios/*.md`
+   (one conversation) or a `.csv` (several), with the surface (Lightning panel, or the URL of the page carrying
+   the widget) and who is signed in (the sf alias's user, Login-As of a user, a guest). Add checks instead of
+   planning to read every answer: `expect:`, `expect-not:`, `expect-button:`, `max-seconds:`. For one-time codes
+   use `type-from: prompt one-time code`: the user types it in `afrec ui` or the terminal when asked.
 2. **Dry run**: `afrec run --dry-run`. Fix every error it prints, and show the user the plan.
 3. **Warn about side effects** before recording: every message spends agent credits and can run real actions.
 4. **Record**: `afrec run` (in the background for long batches), or point the user to `afrec ui`.
